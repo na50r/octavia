@@ -625,23 +625,28 @@ function configure_rsyslog {
     sudo chmod 775 /var/log/octavia
     sudo chgrp syslog /var/log/octavia
 
-    sudo cp ${OCTAVIA_DIR}/devstack/etc/rsyslog/10-octavia-log-offloading.conf /etc/rsyslog.d/
-    sudo sed -e "
+    CONF=/etc/rsyslog.d/10-octavia-log-offloading.conf
+
+    if [ ! -f "$CONF" ]; then
+        sudo cp ${OCTAVIA_DIR}/devstack/etc/rsyslog/10-octavia-log-offloading.conf "$CONF"
+    fi
+
+    sudo sed -i "
         s|%ADMIN_PORT%|${OCTAVIA_AMP_LOG_ADMIN_PORT}|g;
         s|%TENANT_PORT%|${OCTAVIA_AMP_LOG_TENANT_PORT}|g;
-    " -i /etc/rsyslog.d/10-octavia-log-offloading.conf
+    " "$CONF"
 
-    # Temporary backward compatibility symbolic link.
-    # Remove in the next "I" cycle
     sudo touch /var/log/octavia/octavia-tenant-traffic.log
     sudo chmod 664 /var/log/octavia/octavia-tenant-traffic.log
     sudo chgrp syslog /var/log/octavia/octavia-tenant-traffic.log
-    sudo ln -s /var/log/octavia/octavia-tenant-traffic.log /var/log/octavia-tenant-traffic.log
+
+    sudo ln -sf /var/log/octavia/octavia-tenant-traffic.log /var/log/octavia-tenant-traffic.log
 
     sudo touch /var/log/octavia/octavia-amphora.log
     sudo chmod 664 /var/log/octavia/octavia-amphora.log
     sudo chgrp syslog /var/log/octavia/octavia-amphora.log
-    sudo ln -s /var/log/octavia/octavia-amphora.log /var/log/octavia-amphora.log
+
+    sudo ln -sf /var/log/octavia/octavia-amphora.log /var/log/octavia-amphora.log
 }
 
 function octavia_start {
