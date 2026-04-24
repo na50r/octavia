@@ -621,7 +621,8 @@ function configure_octavia_api_haproxy {
 }
 
 function configure_rsyslog {
-    sudo mkdir -m 775 /var/log/octavia
+    sudo mkdir -p /var/log/octavia
+    sudo chmod 775 /var/log/octavia
     sudo chgrp syslog /var/log/octavia
 
     sudo cp ${OCTAVIA_DIR}/devstack/etc/rsyslog/10-octavia-log-offloading.conf /etc/rsyslog.d/
